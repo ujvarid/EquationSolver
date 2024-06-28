@@ -46,6 +46,7 @@ namespace EquationSolver
                 if (a == 0 && Evaluating(expressionConst, expression, 0) != 0)
                 {
                     Console.WriteLine($"\n\n\nSorry, I could not find a solution given the interval [{IVMIN}, {IVMAX}]");
+                    Console.ReadKey();
                 }
                 else
                 {
@@ -105,8 +106,10 @@ namespace EquationSolver
             }
 
             int z = (a + b) / 2;
+            int k = a;
+            int d = b;
 
-            for(int i = 0; i < 5000; ++i)
+            for(int i = 0; i <= (Math.Log2(Math.Abs(k-d)) + 1); ++i)
             {
                 double evalResult = Evaluating(expressionConst, function, z);
                 if (evalResult == 0)
