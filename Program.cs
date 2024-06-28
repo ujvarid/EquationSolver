@@ -1,19 +1,24 @@
 ﻿using System.Linq.Expressions;
 
+
+
 namespace EquationSolver
 {
     internal class Program
     {
+        private const int IVMAX = 99999;
+        private const int IVMIN = -99999;
+
         static void Main(string[] args)
         {
 
             //input
 
-            Console.WriteLine("Adj meg egy 0 - ra rendezett egyenletet:\n");
+            Console.WriteLine("Enter an equation set to zero:\n");
 
             string line = Console.ReadLine();
             System.Console.Clear();
-            Console.Write("Az egyenlet: \n\n" + line + " = 0");
+            Console.Write($"The equation: \n\n{line} = 0");
             string[] exp = line.Split(' ');
             List<string> expression;
             List<string> expressionConst = new();
@@ -38,14 +43,21 @@ namespace EquationSolver
 
             if (a == b)
             {
-                Console.WriteLine();
-                Console.WriteLine("\n\nA megoldás: \n\nx = " + a);
-                Console.ReadKey(); 
+                if (a == 0 && Evaluating(expressionConst, expression, 0) != 0)
+                {
+                    Console.WriteLine($"\n\n\nSorry, I could not find a solution given the interval [{IVMIN}, {IVMAX}]");
+                }
+                else
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("\n\nThe solution: \n\nx = " + a);
+                    Console.ReadKey();
+                }
             }
             else
             {
                 Console.WriteLine();
-                Console.WriteLine("\n\nA megoldás: \n\nx: " + a + " és " + b + " között van");
+                Console.WriteLine($"\n\nThe solution: \n\nx is in the interval ({a}, {b})");
                 Console.ReadKey(); 
             }
         }
@@ -71,12 +83,9 @@ namespace EquationSolver
             int k = 0;
             List<string> expressionConst = new List<string>(function);
 
-            for (int i = positive ? 99999 : -99999; positive ? i >= -999 : i <= 999; i += positive ? -1 : 1)
+            for (int i = positive ? IVMAX : IVMIN; positive ? i >= IVMIN : i <= IVMAX; i += positive ? -1 : 1)
             {
-                CopyLists(expressionConst, out function);
-                function = PolishNotation.ToPolishForm(function, false);
-                function = PolishNotation.ChangeX(function, i);
-                double evalResult = PolishNotation.EvaluatePolishForm(function);
+                double evalResult = Evaluating(expressionConst, function, i);
                 if ((positive && evalResult > 0) || (!positive && evalResult < 0))
                 {
                     k = i;
@@ -99,10 +108,7 @@ namespace EquationSolver
 
             for(int i = 0; i < 5000; ++i)
             {
-                CopyLists(expressionConst, out function);
-                function = PolishNotation.ToPolishForm(function, false);
-                function = PolishNotation.ChangeX(function, z);
-                double evalResult = PolishNotation.EvaluatePolishForm(function);
+                double evalResult = Evaluating(expressionConst, function, z);
                 if (evalResult == 0)
                 {
                     return (z, z);
@@ -118,6 +124,14 @@ namespace EquationSolver
                 z = (a + b) / 2;
             }
             return (a, b);
+        }
+
+        public static double Evaluating(List<string> expressionConst, List<string> function, int a)
+        {
+            CopyLists(expressionConst, out function);
+            function = PolishNotation.ToPolishForm(function, false);
+            function = PolishNotation.ChangeX(function, a);
+            return PolishNotation.EvaluatePolishForm(function);
         }
     }
 }
